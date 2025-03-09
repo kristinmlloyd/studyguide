@@ -102,7 +102,9 @@ A class defines how objects behave. An object is a real instance of that class, 
 - Instead of `def __init__(self, text)`, use `def from_file(cls, filename)`.
 
 ## Week 1 Practice Questions
-1. Why is Zipf's Law relevant in NLP?
+1. What does Zipf's Law state?
+2. What is the Zipf's Law formula?
+3. Why does Zipf's Law create a sparse data problem?
 - Words with low frequency are more informative than words with high frequency.
 2. Which class of words carries stylistic information and remains stable across documents for a particular author?
 - Function words (e.g., prepositions, conjunctions, pronouns). Their relative frequency and usage patterns vary by author. 
