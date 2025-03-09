@@ -1,0 +1,682 @@
+---
+title: ""
+author: "Kristin Lloyd"
+format: 
+  html:
+    embed-resources: true
+---
+
+# Week 1: Introduction to NLP and Zipf’s Law
+
+## Introduction
+In Week 1, we talked about natural language processing and briefly distinguished it from other subfields of artificial intelligence, such as machine learning and deep learning. We took an abbreviated look at why studying language is interesting in its own right, but you won’t be asked any questions about NLP history. We also learned about Zipf’s Law, which is a key concept you should understand. In our lab, we reviewed some Python highlights.
+
+## Key Topics
+### Natural Language Processing (NLP) Overview
+- NLP is a subfield of artificial intelligence focused on enabling computers to understand, interpret, and generate human language.
+- It intersects with machine learning and deep learning, but NLP specifically deals with linguistic data.
+
+#### Why is NLP difficult?
+- **Language is ambiguous**: The same phrase can have multiple meanings (e.g., *"I shot an elephant in my pajamas"*).
+- **Context matters**: Words have different meanings depending on usage (e.g., *bank* as financial institution vs. riverbank).
+- **Language evolves**: New words and slang emerge, making language models outdated quickly.
+- **World knowledge required**: Understanding language often requires cultural and contextual understanding that's difficult for computers.
+
+### Zipf's Law & Sparse Data
+Zipf's Law states that in a given corpus of text, the frequency of a word is inversely proportional to its rank. The most frequent word is assigned rank 1, the second most frequent word assigned rank 2, and so on.
+
+- **Mathematically**: Zipf’s Law states that the frequency of a word is proportional to 1/rank.
+- The most frequent word occurs approximately twice as often as the second most frequent word, three times as often as the third most frequent word, etc.
+- **Visualization**: When plotted on a log-log scale, Zipf's Law creates a remarkably consistent linear pattern across different languages.
+
+#### Implications for NLP:
+- A small number of words (e.g., "the", "of", "and") appear extremely frequently.
+- Most words appear very rarely (the "long tail" of the distribution).
+- This creates the **sparse data problem**: Many word combinations have zero occurrences even in large corpora.
+- **Trigram Model Example**: The trigram language model trained on 40 million words from the Wall Street Journal still produced incoherent text. Trigram models have limited context, relying only on three-word sequences. Zipf’s Law plays a role in why the trigram model produced incoherent text. Since trigram models rely on observed word sequences, they struggle with rare or unseen word combinations.
+- **Other Zipfian Phenomena**: This pattern appears in many natural and human-created systems (city populations, income distributions, etc.).
+
+## Python and Programming for NLP
+
+### Object-Oriented Programming (OOP)
+- Essential for structuring NLP projects.
+- OOP is a way of organizing code like a box that holds both data (information) and tools (functions) to work with that data. Instead of writing everything in one big messy pile, we create classes (blueprints) that define how objects (boxes) should work.
+- Once we make a document class, we can use it again and again.
+
+#### Example from slides: Creating a `Document` class with methods like `__init__` and `print_document`:
+
+```{python}
+
+class Document:
+    def __init__(self, text):
+        """This function runs when we make a new document. It saves the text."""
+        self.text = text  # Store the text
+
+    def print_document(self):
+        """Prints the document's text."""
+        print(f"Document Content: {self.text}")
+
+# Creating a document (automatically calls __init__)
+doc = Document("Hello, world!")
+
+# Using the function inside the class
+doc.print_document()
+
+```
+
+- **class Document**: Creates a new type of object called Document.
+- **__init__(self, text)**: Runs when a new document is made and stores the text.
+- **self.text = text**: Saves the text inside the document.
+- **print_document(self)** → A function that prints the text.
+
+#### What is a class?
+A class in Python is a blueprint for creating objects. It defines the attributes (data) and methods (functions) that its objects will have.
+
+```{python}
+
+class Document:
+    def __init__(self, text):
+        self.text = text  # Attribute storing text
+
+```
+
+#### What is an object?
+An object is an instance of a class—a specific, concrete thing created using a class blueprint.
+
+```{python}
+
+# Creating objects (instances) of the Document class
+doc1 = Document("Hello, world!")  
+doc2 = Document("Python is fun!")  
+
+print(doc1.text)  # Output: Hello, world!
+print(doc2.text)  # Output: Python is fun!
+
+```
+
+#### What is the difference between a class and an object?
+A class defines how objects behave. An object is a real instance of that class, with its own unique data. Multiple objects can be created from the same class, each storing different values.
+
+#### What is a class method?
+- A class method is a method that operates on the class itself rather than on an instance of the class. It is defined using the @classmethod decorator and takes cls (the class) as its first parameter instead of self.
+- Instead of `def __init__(self, text)`, use `def from_file(cls, filename)`.
+
+## Week 1 Practice Questions
+1. Why is Zipf's Law relevant in NLP?
+- Words with low frequency are more informative than words with high frequency.
+2. Which class of words carries stylistic information and remains stable across documents for a particular author?
+- Function words (e.g., prepositions, conjunctions, pronouns). Their relative frequency and usage patterns vary by author. 
+3. What is the difference between the __init__ method of a class and the __init__.py file?
+- The __init__ method initializes objects in a class, while the __init__.py file marks a directory as a Python package and runs initialization code.
+
+# Week 2: Probability, Likelihood, and N-Gram Models
+
+## Introduction
+In Week 2, we reviewed foundational concepts in probability. We contrasted probability functions with likelihood functions, and we talked about how maximum likelihood estimation can be used to understand n-gram language models. Bayes’ Rule was important for constructing the Naive Bayes model, which we considered in the context of authorship identification. We also looked at basic text processing steps. The lab looked at writing a simple application to count words as a motivator for designing applications that take the user’s needs into account.
+
+## Key Topics
+
+### Probability vs. Likelihood
+- **Probability** measures how likely an event is to occur (between 0 and 1).
+- **Likelihood** measures how well a model explains the observed data.
+
+#### Likelihood Example:
+- **Model A** is trained on Shakespeare’s works.
+- **Model B** is trained on modern news articles.
+- Given the sentence *"Thou art fair and wise"*, Model A would assign a **higher likelihood** than Model B.
+
+## Maximum Likelihood Estimation (MLE) and N-Gram Models
+
+### Maximum Likelihood Estimation (MLE)
+- MLE estimates probabilities based on observed data by maximizing the likelihood of that data occurring.
+- Steps:
+  1. Assume a probability distribution.
+  2. Measure likelihood for different parameter values.
+  3. Choose the parameters that maximize likelihood.
+
+### N-Gram Language Models
+N-gram models assign probabilities to word sequences using the **Markov assumption**, which simplifies modeling by considering only a fixed number of previous words.
+
+#### Types of N-Gram Models:
+- **Unigram**: Each word is independent.
+- **Bigram**: Predicts a word based on one previous word.
+- **Trigram**: Predicts a word based on two previous words.
+
+#### Example:
+Given the sentence *"The cat sat on the mat."*
+
+- **Unigram**:
+  \[ P("cat") = \frac{count("cat")}{total\ words} \]
+
+- **Bigram**:
+  \[ P("sat" | "cat") = \frac{count("cat sat")}{count("cat")} \]
+
+- **Trigram**:
+  \[ P("on" | "sat the") = \frac{count("sat the on")}{count("sat the")} \]
+
+**Issue with MLE in N-Grams:**
+- **Sparsity**: Many word combinations do not appear in training data, leading to zero probabilities.
+- **Solution**: Smoothing techniques (Laplace, Good-Turing, etc.) assign small probabilities to unseen words.
+
+## Bayes' Rule and Naïve Bayes Classifier
+
+### Bayes' Rule
+Allows us to **update probabilities** based on new evidence:
+\[ P(A|B) = \frac{P(B|A) P(A)}{P(B)} \]
+
+#### Example:
+- Suppose we want to determine if an email is spam (**S**) based on the word *"free"* (**F**):
+  \[ P(S | F) = \frac{P(F | S) P(S)}{P(F)} \]
+
+**Assumptions in Naïve Bayes:**
+- Features are **conditionally independent** given the class.
+- Prior probabilities can be estimated from data.
+- Events must have **non-zero probability**.
+
+### Naïve Bayes Classifier
+A simple probabilistic model for classification that assumes **word independence**.
+
+- A **probabilistic model** based on Bayes' Theorem.
+- Assumes features are **conditionally independent** given the class.
+- **Training**: Compute probabilities \( P(y) \) and \( P(x | y) \).
+- **Prediction**: \( \hat{y} = \arg\max P(y | x) \).
+
+#### Implementation of Naïve Bayes
+```{python}
+def train_naive_bayes(X_train, y_train):
+    """
+    Train a Naive Bayes classifier.
+    """
+    pass  # Implementation goes here
+```
+
+#### Formula:
+For a document **D** with words \( w_1, w_2, ..., w_n \), classify as **Spam (S) or Not Spam (¬S)**:
+
+\[ P(S | D) \propto P(S) \prod_{i=1}^{n} P(w_i | S) \]
+
+Where:
+- \( P(S) \) is the prior probability of spam.
+- \( P(w_i | S) \) is the likelihood of word \( w_i \) appearing in spam.
+
+**Advantages:**
+- Simple, fast, and effective for text classification.
+- Works well with small datasets.
+
+**Limitations:**
+- Assumes word independence, which is not always realistic.
+
+## Text Processing Basics
+Before applying models, text data must be **cleaned and structured**.
+
+### Key Steps in Text Processing:
+
+#### Tokenization
+Breaking text into words or phrases (tokens):
+```{python}
+
+from nltk.tokenize import word_tokenize
+text = "NLP is amazing!"
+tokens = word_tokenize(text)
+print(tokens)  # ['NLP', 'is', 'amazing', '!']
+
+```
+
+Tokenization is crucial for breaking text into meaningful units, enabling efficient analysis, processing, and understanding in NLP tasks.
+
+#### Stopword Removal
+Removing common words like "the," "is," and "and."
+
+#### Stemming & Lemmatization
+- **Stemming**: Chops word endings (e.g., *"running" → "run"*).
+- **Lemmatization**: Converts words to base forms (e.g., *"better" → "good"*).
+
+```{python}
+
+from nltk.stem import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+print(lemmatizer.lemmatize("running", pos="v"))  # Output: "run"
+
+```
+
+#### Example: Simple Word Counter
+```{python}
+
+def count_words(text):
+    words = text.split()
+    return len(words)
+
+text = "This is an example sentence."
+print("Word count:", count_words(text))
+
+```
+
+## Week 2 Practice Questions
+1. What is the difference between **probability** and **likelihood**? Provide an example.
+2. If a biased coin lands on heads 70% of the time, what is the probability of getting **HHH** in three flips?
+3. Calculate the bigram probability of *"sat | cat"* given the sentence *"The cat sat on the mat."*
+4. If a disease affects 0.1% of people and a test is 99% accurate, what is the probability someone who tested positive actually has it?
+5. What is the Naïve Bayes assumption, and why might it not always be true?
+6. Given the sentence *"Running quickly, he reached the station"*, apply stemming and lemmatization.
+7. Why do we remove stopwords, and when might they be useful?
+8. This kind of probability considers an event after another has occured? **Conditional Probability**
+9. In traditional statistical modeling, the basic strategy we use to estimate probabilities is this? **Counting, where probabilities are estimated based on the frequency of events in a dataset.**
+10. What are the three axioms of probability? **Probabilities are non-negative, probabilities are additive, probabilities sum to 1 over their sample space**
+11. What is the name of the distribution we seek when using Bayes' Theorem with priors and likelihoods?
+- The posterior distribution is the distribution we aim to find, representing the updated probability after considering prior beliefs and new evidence.
+12. Why do we use smoothing in Naïve Bayes?
+- We use smoothing in Naïve Bayes to prevent zero probabilities for unseen words
+13. How is the probability of a document handled in Naïve Bayes classification?
+- We do not use the probability of a document directly because it is the same across all classes
+
+# Week 3: Modeling and Evaluation in Statistical Learning
+
+## Introduction
+In Week 3, we talked about modeling and evaluation of statistical learning models. We talked about model generalization, and we looked at how we can assess that using cross-validation. Overfitting and underfitting are common problems, and the bias-variance tradeoff was a central idea in understanding generalizability. The importance of evaluating models was also introduced. We took a first look at object-oriented design, as well.
+
+## Key Topics
+
+### Model Generalization
+- A good model should perform well on new data, not just the training set.
+- Generalization is influenced by model complexity, data size, and noise.
+
+### Key Components of Statistical Learning
+- **Labeled Data**: Supervised learning requires a dataset with known labels.
+- **Model & Loss Function**:
+  - Models range from simple linear relationships to complex neural networks.
+  - The model contains parameters (weights and biases) that are adjusted during training.
+  - **Loss functions** measure the error between predictions and actual values.
+- **Optimization Algorithm**:
+  - Adjusts model parameters to minimize the loss function.
+
+### Overfitting & Underfitting
+- **Overfitting**: The model memorizes training data but fails on unseen data.
+- **Underfitting**: The model is too simple and misses patterns in the data.
+
+### Bias-Variance Tradeoff
+- **High Bias (Underfitting)**: The model is too simple (e.g., fitting a straight line to curved data).
+- **High Variance (Overfitting)**: The model is too complex and sensitive to training data.
+- **Goal**: Balance bias and variance to minimize generalization error.
+
+## Cross-Validation (CV)
+
+Cross-validation ensures models perform well on unseen data by using multiple train-test splits.
+
+### k-Fold Cross-Validation
+1. **Split the data** into *k* equal parts.
+   - Example: With 1,000 data points and \( k=5 \), each fold has 200 samples.
+
+2. **Training and evaluation cycle**:
+   - Train on *k-1* folds, test on the remaining fold.
+   - Repeat for each fold.
+
+3. **Calculate the average performance** across all folds.
+
+### Why Use CV?
+- Provides a more reliable performance estimate.
+- Reduces overfitting risk by testing on different subsets.
+
+### k-Nearest Neighbors (k-NN)
+- **Instance-based learning**: Stores training data and classifies new points based on nearest neighbors.
+- **Key Idea**: Predict label by majority vote of *k* nearest points.
+- **Hyperparameter**: \( k \) controls model complexity.
+- **Advantages**: Simple and interpretable.
+- **Disadvantages**: Computationally expensive for large datasets.
+
+## Evaluation Metrics
+
+Accuracy:
+
+TP+TN/(TP+TN+FP+FN)
+
+Example:
+
+Imagine we've built a model to predict whether emails are spam or not spam. After testing it on 100 emails, we get these results:
+
+15 emails were correctly identified as spam
+75 emails were correctly identified as not spam
+5 regular emails were incorrectly flagged as spam
+5 spam emails were incorrectly identified as regular
+
+TP = 15
+TN = 75
+FP = 5
+FN = 4
+
+Accuracy = (15 + 75) / (15 + 75 + 5 + 4)
+
+- Works well when classes are balanced but can be misleading for imbalanced data.
+
+Precision: Proportion of positive identifications that were actually correct.
+
+TP/(TP+FP)
+
+15 emails that were correctly identified as spam divided by the 15 emails correctly identified as spam plus the 5 emails that were incorrectly identified as spam.
+
+15/20
+
+Recall (Sensitivity): Proportion of actual positives that were identified correctly.
+
+TP/(TP+FN)
+
+15 emails that were correctly identified as spam divided by the 15 emails correctly identified as spam plus the 4 emails that weren't identified as spam but they were spam.
+
+F1 Score: A single metric that balances precision and recall by taking their harmonic mean. It's particularly useful when you need to find a balance between these two metrics.
+
+F1 = 2 \cdot \frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}
+
+**Confusion Matrices**
+
+<img src="hi4.png" width="300">
+
+**Example from Class**
+
+Assume there are 7 total relevant documents. We found 4 (highlighted green)
+
+<img src="hi2.png" width="300">
+
+Remember, 
+
+## Week 3 Practice Questions
+
+1. What happens to bias and variance as model complexity increases?
+2. How does k-fold cross-validation prevent overfitting?
+3. Why is the independence assumption in Naïve Bayes often unrealistic?
+4. How does changing \( k \) in k-NN affect the decision boundary?
+5. When should you prioritize precision over recall in a model?
+6. How would you handle missing data in a k-NN model?
+7. As we increase the value of the smoothing hyperparameter in Lidstone smoothing, what happens in terms of the bias-variance trade off?
+- The bias increases because the model becomes more uniform. A smoothing parameter is a value used in probability estimation to adjust for zero or low-frequency counts.
+8. What performance measure can be misleading when working with unbalanced data?
+- Accuracy can be misleading in unbalanced datasets because it does not account for class distribution, often overestimating performance when one class dominates.
+9. What type of class is often used as a utility class, can be inherited from, but does not participate in an is-a relationship?
+- A mixin class is used for adding functionality to other classes without representing an "is-a" relationship.  A mixin does not define a full class structure but instead provides extra functionality like logging, validation, or formatting.
+10. In what setting do we use the @abc.abstractmethod decorator?
+- We use @abc.abstractmethod in a parent class to make sure that all child classes must define that method, enforcing a required structure.
+
+# Week 4: Information Retrieval (IR)
+
+## Introduction
+In Week 4, we discussed information retrieval. We motivated the retrieval problem and also studied a few different retrieval models. We discussed the inverted index, which is essential for classical retrieval systems. The lab offered an initial study of a basic Python project.
+
+## Key Concepts
+
+### Information Retrieval Systems
+- IR is centered around users and their information needs.
+- It involves both theoretical algorithms and efficient engineering techniques to support retrieval at scale.
+
+### Retrieval Models
+IR can be categorized into several subproblems:
+- **Keyword Search**: Retrieves documents containing specific search terms.
+- **Text Classification**: Assigns class labels to documents.
+- **Question Answering**: Returns specific answers instead of a ranked list of documents.
+- **Ad Hoc Search**: Develops ranked retrieval systems that prioritize relevant documents.
+
+### Vocabulary Mismatch
+- Occurs when queries do not exactly match document terms.
+- **Structured search (databases)** differs from **unstructured search (text collections)**.
+
+## Indexing and Querying
+
+### Indexing
+- Constructs data structures (often an inverted index) to support search.
+- Improves search efficiency by precomputing word-to-document mappings.
+
+### Query Processing
+- **Compares user queries to indexed documents**.
+- Uses ranking models to return the most relevant documents.
+
+### Text Processing Techniques
+- **Tokenization**: Splitting text into words or subwords.
+- **Stemming**: Reducing words to their root form.
+- **Stop-word removal**: Filtering out common words that carry little meaning (e.g., "the", "is").
+
+## The Inverted Index
+A fundamental data structure in IR that allows for efficient search and retrieval.
+
+### Features of the Inverted Index:
+- **Fast Search**: Instead of scanning entire documents, an inverted index stores a postings list of document occurrences for each term.
+- **Efficient Storage & Updates**: Stores minimal but relevant information, allowing easy updates when new documents are added.
+- **Postings List**: Each term maps to a list of document IDs where it appears, often including frequency and position data.
+
+#### Example:
+
+data: (1, 2), (3, 1), (5, 4)
+
+This means:
+- "data" appears in **Doc 1 (2 times)**, **Doc 3 (1 time)**, **Doc 5 (4 times)**.
+
+## Evaluation Metrics
+
+### Effectiveness
+- Assesses how well an IR system retrieves relevant documents for a given query.
+- Measured using metrics such as precision, recall, F1-score, and Mean Average Precision (MAP).
+
+### Efficiency
+- Evaluates the system’s speed and scalability.
+- Includes factors such as:
+  - Query response time.
+  - Index size and compression.
+  - Indexing speed.
+
+### Heap’s Law
+- Predicts vocabulary size in a document collection based on the number of documents.
+- Useful for estimating index size and memory requirements.
+
+## Lab
+
+## Week 4 Practice Questions
+1. Why is an inverted index called "inverted"?
+- An inverted index is called "inverted" because it maps words to document IDs instead of mapping documents to words, allowing for efficient text search and retrieval. It answers: Given a term, what are the documents associated with it?
+2. Which term weighting approach improves on TF-IDF by accounting for document lengths?
+- BM25
+3. What are the two data structures used for a basic inverted index?
+- Vocabulary (A list of all unique terms in the document collection) and inverted file (A data structure that maps each term in the vocabulary to a list of documents where it appears.)
+4. What is the difference between an inverted index and an inverted file?
+- An inverted index is a broad term for the data structure used in information retrieval, while an inverted file is a specific implementation where the index is stored as a list mapping terms to document occurrences.
+5. What kind of retrieval model is best when we know exactly the terms that appear in relevant documents?
+- A Boolean retrieval model is ideal because it retrieves documents based on exact keyword matches using logical operators (AND, OR, NOT).
+6. Given a query with 4 known relevant documents (doc IDs: 3, 5, 11, and 7), a search system retrieves the following 5 documents in ranked order: 3, 2, 12, 11, and 15. Calculate Precision@2 and Average Precision (AP).
+- We need to compute precision at rank 2. Precision@2 = Relevant documents in the top 2/2. 3 is relevant as we can see but 2 is not. So the answer is 1/2.
+- To compute average precision, we see that it picked 3 which is rank 1 and 11 at rank 4. 5 and 7 were not found. Compute Doc 3 at Rank 1 -> P@1 = 1/1 = 1. P@4 = 2/4. Then you do P@1 + P@4/ total relevant documents and get 1+.5/4 = .375
+
+# Week 5 
+
+## Week 5 Practice Questions
+1. 
+2. 
+
+# Week 6: Evaluating Retrieval Systems & Software Design
+
+## Introduction
+In Week 6, we concluded our discussion of retrieval systems by discussing how they are evaluated, noting that the evaluation procedure differs from what we saw in text classification. We dove deeper into software design by discussing testing, exceptions, and logging.
+
+## Evaluating Retrieval Systems
+
+### Key Components
+- **Large Document Collection**: Provides a dataset for testing.
+- **Set of Topics**: Represents user queries.
+- **Relevance Judgments**: Determines which documents are relevant.
+- **Performance Metrics**: Measures system effectiveness.
+
+### Measuring Performance
+- **Precision**: Fraction of retrieved documents that are relevant.
+- **Recall**: Fraction of relevant documents that were retrieved.
+- **Mean Average Precision (MAP)**: Evaluates ranking accuracy across multiple queries.
+- **Normalized Discounted Cumulative Gain (NDCG)**: Rewards placing relevant documents higher in ranked results.
+
+### Evaluation Standards
+- **TREC (Text Retrieval Conference)**: A benchmark for comparing retrieval systems.
+
+## Software Design for IR Systems
+
+### Testing
+- **Unit Testing**: Checks individual components of the system.
+- **Integration Testing**: Ensures different system parts work together.
+- **Regression Testing**: Prevents new changes from breaking existing functionality.
+
+### Handling Errors
+- **Exception Handling**: Catches and resolves errors in queries and indexing.
+- **Logging**: Tracks system events for debugging and performance monitoring.
+
+## Ranking in Retrieval
+
+- Unlike text classification, which assigns a **label** to a document, retrieval ranking **orders documents by relevance** to a query.
+- Models like **TF-IDF** compute relevance scores, ensuring that the most useful results appear first.
+
+### TF-IDF: Term Importance in Retrieval
+TF-IDF scores words based on their significance in a document:
+- **Term Frequency (TF)**: Counts how often a word appears in a document.
+- **Inverse Document Frequency (IDF)**: Reduces the impact of common words and gives more weight to rare terms that distinguish documents.
+
+#### Why Rank Rarer Terms Higher?
+- Common words (e.g., *"the"*, *"is"*) appear frequently and don’t help distinguish relevance.
+- Rare terms (e.g., *"photosynthesis"*, *"neural network"*) are more **informative**, making them better indicators of a document’s topic.
+- TF-IDF helps prioritize meaningful terms, improving retrieval quality.
+
+## Week 6 Practice Questions
+1. What is the main difference between using exceptions and assertions?
+- Exceptions handle expected errors and allow the program to continue running by redirecting execution. Assertions, however, check for programming mistakes and will terminate the program if the condition fails.
+
+Example: The program does not crash because except catches the error and allows execution to continue.
+
+```{python}
+
+try:
+    x = 10 / 0  # This will cause a ZeroDivisionError
+except ZeroDivisionError:
+    print("You can't divide by zero!")
+
+print("Program continues...")
+
+```
+
+2. What is the pitfall in the following Python code?
+
+```{python}
+
+def print_tokens(inputs, tokens=[]):
+    tokens.append(inputs.split())
+    return tokens
+
+```
+
+- The default argument tokens=[] is mutable (a list), meaning it persists across function calls instead of resetting each time. You can fix this by using None as the default value and creating a new list inside the function:
+
+```{python}
+
+def print_tokens(inputs, tokens=None):  
+    if tokens is None:  
+        tokens = []  # New list created for each call
+    tokens.append(inputs.split())
+    return tokens
+
+```
+
+# Week 7: Machine Translation (MT)
+
+## Introduction
+In Week 7, we studied the history of NLP through a discussion of machine translation. We took a high-level overview of how to construct a machine translation system using a language model and translation model, and we outlined how alignment was a key piece here. Machine translation evaluation was also introduced. You will not be responsible for recalling information about the historical perspectives we appreciated in class, and you are not responsible for any content on IBM Model I.
+
+## Components of a Machine Translation System
+
+### 1. Translation Model
+- Determines how words and phrases map from one language to another.
+- Often built from parallel corpora (aligned sentences in two languages).
+
+### 2. Language Model
+- Ensures translated sentences are fluent and grammatically correct.
+- Trained on large monolingual corpora in the target language to ensure fluency.
+
+### 3. Alignment
+- Aligns words and phrases between the source and target languages.
+- **Example**: "Anna eats pizza" → "Анна ест пиццу" (word-by-word mapping).
+
+## Evaluating Machine Translation
+
+### BLEU Score (Bilingual Evaluation Understudy)
+
+BLEU is a popular metric for scoring machine translations by comparing them to human-translated references.
+
+- Measures n-gram overlap between machine translation and reference translation.
+- The more n-grams match, the higher the score, indicating better translation quality.
+- Includes a brevity penalty to avoid favoring short translations.
+
+#### Why Use a Brevity Penalty?
+- A short translation might still match many words but miss key details.
+- The brevity penalty lowers the score when the machine translation is significantly shorter than the reference.
+
+### Human vs. Automatic Evaluation
+
+- **Human Evaluation** considers fluency, meaning, and adequacy but is expensive and time-consuming.
+- **Automatic Metrics** (e.g., BLEU) are fast and scalable but may miss nuanced meanings and contextual accuracy.
+
+## Week 7 Practice Questions
+1. 
+2. 
+
+# Week 8: Distributed Representations & Skip-gram Model
+
+## Introduction
+In Week 8, we looked at distributed representations by leveraging the Distributional Hypothesis, culminating with the Skip-gram model.
+
+## Key Concepts
+
+### The Distributional Hypothesis
+- Words that appear in similar contexts tend to have similar meanings.
+
+### Representing Words Numerically
+
+#### One-hot Encoding
+- A method for representing words as binary vectors.
+- Imagine a vocabulary of 10,000 words:
+  - Each word is assigned a unique position in a vector.
+  - The vector has 10,000 positions.
+  - Only one position contains 1, all others are 0.
+
+#### Co-occurrence Matrices (TF-IDF, PMI)
+- Tracks how frequently words appear together in documents.
+
+##### Example Co-occurrence Matrix:
+Analyzing these three sentences:
+
+"I love dogs and cats"
+"Dogs are loyal pets"
+"Cats are independent pets"
+
+Would generate a co-occurrence matrix tracking word pairs.
+
+#### Two Common Types:
+- **TF-IDF**: Weighs words based on how frequent they are in a document vs. the entire corpus.
+- PMI (Pointwise Mutual Information): Measures if words co-occur more than expected by chance.
+
+### Word Embeddings
+- Unlike one-hot encoding, word embeddings represent words as dense vectors.
+- Words are mapped to 50-300 dimensional vectors (compared to 10,000+ dimensions in one-hot encoding).
+- Similar words** have similar vectors, meaning they appear close in vector space.
+
+#### Advantages of Word Embeddings:
+- Captures semantic similarity (e.g., *king* and *queen* have similar representations).
+- Reduces dimensionality, making computations more efficient.
+
+## The Skip-gram Model
+
+- A method to train word embeddings based on context.
+- Instead of analyzing words in isolation**, Skip-gram looks at neighboring words.
+- **Goal**: Predict words that typically appear around a given word.
+- This creates a “word space” where similar words are clustered together.
+
+## Week 8 Practice Questions
+1. What is the difference between sparse and dense vectors?
+- Sparse vectors have mostly zero values (e.g., one-hot encoding), Dense vectors have mostly nonzero values (e.g., word embeddings like Word2Vec). Sparse vectors are used when dealing with high-dimensional, categorical data. Dense vectors are used in machine learning and deep learning to capture semantic relationships in a low-dimensional space. 
+2. What is the name of the probability function used to model p(context words∣center word) in the Skip-gram model?
+- The softmax function is used to calculate how likely each word in the vocabulary is to appear as a context word given a center word. Suppose we have the sentence: "The cat sits on the mat." For the center word "cat", the Skip-gram model predicts context words like "The", "sits", and "on". The model assigns a probability to each word in the vocabulary using softmax. Softmax ensures that all probabilities sum to 1, so we can interpret them as how likely each word is to appear near "cat".
+3. What strategy speeds up Skip-gram training by updating only some context word representations?
+- In the Skip-gram model, every training step predicts context words based on a center word. Normally, the model would compute probabilities for all words in the vocabulary, which is very slow for large datasets. Negative Sampling speeds up Skip-gram training by updating only a small subset of words instead of the entire vocabulary. A few random words from the vocabulary are chosen as "fake" context words. Common words (like "the") appear frequently, so they are downsampled to avoid bias. Rare words (like "platypus") are chosen more often to help the model learn better representations.
+4. What is the linguistic conjecture underlying distributed representations?
+- The Distributional Hypothesis states that words with similar meanings tend to appear in similar contexts, forming the basis of modern word embeddings.
+5. True or False: Without negative sampling, the time it takes to update using the Skip-gram objective is proportional to the vocabulary size?
+- True. Without negative sampling, updating Skip-gram requires computing probabilities for all words in the vocabulary, making training slow for large vocabularies.
+6. How does using TF-IDF values in a unigram bag-of-words model affect feature representation, and which preprocessing step produces a similar effect?
+- Using TF-IDF downweights frequent words (e.g., "the," "is") and emphasizes rare, informative words, which is similar to removing stopwords, as both approaches reduce the impact of common words in a bag-of-words model.
+
